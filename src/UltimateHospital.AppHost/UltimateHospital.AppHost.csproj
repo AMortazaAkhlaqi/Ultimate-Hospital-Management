@@ -1,0 +1,13 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.6.0">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AspireUseCliBundle>true</AspireUseCliBundle>
+    <AspireCliInvocationMode>DnxPinned</AspireCliInvocationMode>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    <ProjectReference Include="../../main/src/UltimateHospital.HttpApi.Host/UltimateHospital.HttpApi.Host.csproj" />
+    <ProjectReference Include="../../main/src/UltimateHospital.DbMigrator/UltimateHospital.DbMigrator.csproj" />
+  </ItemGroup>
+</Project>

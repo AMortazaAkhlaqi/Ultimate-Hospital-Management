@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.Autofac" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+    <ProjectReference Include="../UltimateHospital.RuntimeInfrastructure/UltimateHospital.RuntimeInfrastructure.csproj" />
+    <ProjectReference Include="../../../src/UltimateHospital.ServiceDefaults/UltimateHospital.ServiceDefaults.csproj" />
+  </ItemGroup>
+</Project>

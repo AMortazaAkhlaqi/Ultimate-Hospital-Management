@@ -1,0 +1,54 @@
+name: Software CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  software:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        with:
+          global-json-file: global.json
+      - name: Scan for secrets
+        shell: bash
+        env:
+          TOOL_DIRECTORY: ${{ runner.temp }}/gitleaks
+        run: |
+          mkdir -p "$TOOL_DIRECTORY"
+          curl --fail --silent --show-error --location --output "$TOOL_DIRECTORY/gitleaks.tar.gz" https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $TOOL_DIRECTORY/gitleaks.tar.gz" | sha256sum --check --strict
+          tar -xzf "$TOOL_DIRECTORY/gitleaks.tar.gz" -C "$TOOL_DIRECTORY" gitleaks
+          "$TOOL_DIRECTORY/gitleaks" git . --log-opts="--all" --redact=100 --ignore-gitleaks-allow --max-archive-depth=5 --max-decode-depth=5 --no-banner
+      - name: Restore locked packages and audit dependencies
+        run: dotnet restore UltimateHospital.slnx --locked-mode -p:NuGetAudit=true -p:NuGetAuditMode=all -warnaserror
+      - name: Build Release
+        run: dotnet build UltimateHospital.slnx -c Release --no-restore
+      - name: Verify formatting
+        run: dotnet format UltimateHospital.slnx --verify-no-changes --no-restore --severity warn
+      - name: Verify container prerequisite and create local test certificate
+        run: |
+          docker info
+          dotnet dev-certs https
+      - name: Run architecture tests
+        run: dotnet test tests/UltimateHospital.ArchitectureTests/UltimateHospital.ArchitectureTests.csproj -c Release --no-build --no-restore --logger trx --results-directory "${{ runner.temp }}/architecture-tests"
+      - name: Run real PostgreSQL integration tests
+        run: dotnet test tests/UltimateHospital.IntegrationTests/UltimateHospital.IntegrationTests.csproj -c Release --no-build --no-restore --logger trx --results-directory "${{ runner.temp }}/integration-tests"
+      - name: Verify source tree
+        run: |
+          git diff --check
+          test -z "$(git status --porcelain)"

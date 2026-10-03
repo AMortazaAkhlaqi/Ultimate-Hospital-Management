@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <PackageReference Include="Aspire.Hosting.Testing" />
+    <ProjectReference Include="../../src/UltimateHospital.AppHost/UltimateHospital.AppHost.csproj" />
+    <ProjectReference Include="../../main/src/UltimateHospital.RuntimeInfrastructure/UltimateHospital.RuntimeInfrastructure.csproj" />
+  </ItemGroup>
+</Project>
